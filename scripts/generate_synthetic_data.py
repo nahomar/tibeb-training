@@ -56,7 +56,7 @@ Return ONLY valid JSON:
 def generate_pair(topic, profile):
     try:
         response = client.messages.create(
-            model="claude-opus-4-5-20251101",
+            model="claude-sonnet-4-20250514",
             max_tokens=2000,
             messages=[{"role": "user", "content": PROMPT.format(
                 topic=topic,

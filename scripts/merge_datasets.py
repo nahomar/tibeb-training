@@ -105,24 +105,67 @@ def main():
             count = 0
             for item in alffa:
                 if item.get("text"):
-                    out.write(json.dumps({"instruction": "ይህን አማርኛ ዓረፍተ ነገር ድገም።", "input": "", "output": item["text"], "source": "alffa_voice", "speaker_id": item.get("speaker_id", "")}, ensure_ascii=False) + "\n")
+                    out.write(json.dumps({"instruction": "ይህን አማርኛ ዓረፍተ ነገር ድገም።", "input": "", "output": item["text"], "source": "alffa_voice"}, ensure_ascii=False) + "\n")
                     count += 1
             stats["alffa_voice"] = count
             total += count
             print(f"  Added {count}")
 
-        # 7. Tibeb financial conversations
-        print("Loading Tibeb financial conversations...")
-        with open("data/synthetic_qa/raw_generated.json", encoding="utf-8") as f:
-            pairs = json.load(f)
-        count = 0
-        for pair in pairs:
-            for ex in convert_financial_conversation(pair):
-                out.write(json.dumps(ex, ensure_ascii=False) + "\n")
-                count += 1
-        stats["tibeb_financial"] = count
-        total += count
-        print(f"  Added {count}")
+        # 7. Aya Collection (Amharic subset)
+        if Path("data/aya_amharic_train.jsonl").exists():
+            print("Loading Aya Collection (Amharic)...")
+            rows = load_jsonl("data/aya_amharic_train.jsonl")
+            count = 0
+            for row in rows:
+                if row.get("instruction") and row.get("output"):
+                    out.write(json.dumps({
+                        "instruction": row["instruction"],
+                        "input": row.get("input", ""),
+                        "output": row["output"],
+                        "source": "aya_collection"
+                    }, ensure_ascii=False) + "\n")
+                    count += 1
+            stats["aya_amharic"] = count
+            total += count
+            print(f"  Added {count}")
+
+        # 8. Sujet Finance Instruct
+        if Path("data/sujet_finance_instruct.jsonl").exists():
+            print("Loading Sujet Finance Instruct...")
+            rows = load_jsonl("data/sujet_finance_instruct.jsonl")
+            count = 0
+            for row in rows:
+                prompt = row.get("user_prompt") or row.get("inputs", "")
+                answer = row.get("answer", "")
+                if prompt and answer:
+                    out.write(json.dumps({
+                        "instruction": row.get("system_prompt", ""),
+                        "input": prompt,
+                        "output": answer,
+                        "source": "sujet_finance",
+                        "task_type": row.get("task_type", "")
+                    }, ensure_ascii=False) + "\n")
+                    count += 1
+            stats["sujet_finance"] = count
+            total += count
+            print(f"  Added {count}")
+
+        # 9. Tibeb financial conversations
+        if Path("data/synthetic_qa/raw_generated.json").exists():
+            print("Loading Tibeb financial conversations...")
+            with open("data/synthetic_qa/raw_generated.json", encoding="utf-8") as f:
+                pairs = json.load(f)
+            count = 0
+            for pair in pairs:
+                for ex in convert_financial_conversation(pair):
+                    out.write(json.dumps(ex, ensure_ascii=False) + "\n")
+                    count += 1
+            stats["tibeb_financial"] = count
+            total += count
+            print(f"  Added {count}")
+        else:
+            print("Skipping Tibeb financial (data/synthetic_qa/raw_generated.json not found)"
+                  " — run generate_synthetic_data.py first")
 
     print(f"\n{'='*50}")
     print(f"Unified dataset: {output_file}")
