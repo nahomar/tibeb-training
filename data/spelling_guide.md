@@ -47,6 +47,6 @@
 
 ## Sentences Structure Rules
 - End statements with ። (Ethiopic full stop)
-- End questions with ？ or ። 
+- End questions with ? or ። 
 - Use ፣ for comma pauses
 - Never mix Latin punctuation randomly with Ethiopic text

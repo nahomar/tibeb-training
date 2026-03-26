@@ -1,2 +1,7 @@
-https://huggingface.co/EthioNLP
-https://arxiv.org/abs/2402.08015
+# Tibeb Training Resources
+
+## Datasets & Models
+https://huggingface.co/EthioNLP          # EthioNLP datasets and models for Amharic NLP
+
+## Papers
+https://arxiv.org/abs/2402.08015         # Aya Model: An Instruction Finetuned Open-Access Multilingual LLM

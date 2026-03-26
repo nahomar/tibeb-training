@@ -205,7 +205,31 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
-data/*.jsonl
-data/synthetic_qa/
+
+# ---------------------------------------------------------------
+# Tibeb: Large training data → hosted on HuggingFace
+# Regenerate locally with: python scripts/merge_datasets.py
+# ---------------------------------------------------------------
+data/amharic_instructions_train.jsonl
+data/amharic_mt_train.jsonl
+data/amharic_news_class.jsonl
+data/aya_amharic_train.jsonl
+data/ethiosenti_train.jsonl
+data/sujet_finance_instruct.jsonl
+data/walia_instructions.jsonl
+data/amharic_sentiments.jsonl
+data/tibeb_unified_train.jsonl
 data/mlx_train/
+data/native_amharic/
+
+# Tibeb: Trained models → hosted on HuggingFace
 models/
+
+# Tibeb: Training logs (not needed in repo)
+logs/
+
+# OS files
+.DS_Store
+
+# Claude Code workspace
+.claude/

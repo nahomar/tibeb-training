@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="am">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tibeb Training Data</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0a; color: #e0e0e0; min-height: 100vh; }
+  .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+  h1 { text-align: center; margin: 20px 0 5px; font-size: 28px; color: #fff; }
+  .subtitle { text-align: center; color: #888; margin-bottom: 30px; font-size: 14px; }
+  .stats { display: flex; gap: 15px; justify-content: center; margin-bottom: 30px; }
+  .stat { background: #1a1a2e; padding: 12px 20px; border-radius: 10px; text-align: center; min-width: 100px; }
+  .stat-num { font-size: 24px; font-weight: 700; color: #4ade80; }
+  .stat-label { font-size: 11px; color: #888; margin-top: 2px; }
+  .form-group { margin-bottom: 18px; }
+  label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; color: #ccc; }
+  .hint { font-size: 12px; color: #666; margin-bottom: 6px; }
+  textarea { width: 100%; padding: 12px; border: 1px solid #333; border-radius: 8px; background: #111; color: #e0e0e0; font-size: 16px; font-family: inherit; resize: vertical; line-height: 1.6; }
+  textarea:focus { outline: none; border-color: #4ade80; box-shadow: 0 0 0 3px rgba(74,222,128,0.1); }
+  .row { display: flex; gap: 12px; }
+  .row > * { flex: 1; }
+  select { width: 100%; padding: 10px; border: 1px solid #333; border-radius: 8px; background: #111; color: #e0e0e0; font-size: 15px; }
+  select:focus { outline: none; border-color: #4ade80; }
+  .btn-row { display: flex; gap: 10px; margin-top: 20px; }
+  button { padding: 14px 28px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+  .btn-save { background: #4ade80; color: #000; flex: 1; }
+  .btn-save:hover { background: #22c55e; transform: translateY(-1px); }
+  .btn-save:active { transform: translateY(0); }
+  .btn-clear { background: #333; color: #ccc; }
+  .btn-clear:hover { background: #444; }
+  .btn-export { background: #3b82f6; color: #fff; }
+  .btn-export:hover { background: #2563eb; }
+  .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #4ade80; color: #000; padding: 12px 24px; border-radius: 8px; font-weight: 600; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+  .toast.show { opacity: 1; }
+  .history { margin-top: 40px; }
+  .history h2 { font-size: 18px; margin-bottom: 15px; color: #ccc; }
+  .entry { background: #111; border: 1px solid #222; border-radius: 8px; padding: 14px; margin-bottom: 10px; }
+  .entry-q { color: #4ade80; font-weight: 600; margin-bottom: 6px; }
+  .entry-a { color: #ccc; font-size: 14px; line-height: 1.5; }
+  .entry-meta { font-size: 11px; color: #555; margin-top: 6px; }
+  .entry-actions { margin-top: 8px; }
+  .entry-actions button { padding: 4px 10px; font-size: 12px; background: #222; color: #999; border-radius: 4px; }
+  .entry-actions button:hover { background: #c53030; color: #fff; }
+  .empty { text-align: center; color: #555; padding: 40px; }
+  .category-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .tab { padding: 8px 16px; border-radius: 6px; background: #1a1a2e; color: #888; font-size: 13px; cursor: pointer; border: 1px solid transparent; }
+  .tab.active { background: #1a2e1a; color: #4ade80; border-color: #4ade80; }
+  .tab:hover { color: #ccc; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🇪🇹 Tibeb Training Data</h1>
+  <p class="subtitle">Write conversations in natural Amharic — each one makes Tibeb smarter</p>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-num" id="totalCount">0</div><div class="stat-label">Total</div></div>
+    <div class="stat"><div class="stat-num" id="financialCount">0</div><div class="stat-label">Financial</div></div>
+    <div class="stat"><div class="stat-num" id="generalCount">0</div><div class="stat-label">General</div></div>
+    <div class="stat"><div class="stat-num" id="safetyCount">0</div><div class="stat-label">Safety</div></div>
+  </div>
+
+  <div class="category-tabs">
+    <div class="tab active" onclick="setCategory('financial')">💰 Financial</div>
+    <div class="tab" onclick="setCategory('general')">💬 General Amharic</div>
+    <div class="tab" onclick="setCategory('safety')">🛡️ Safety/Refusal</div>
+    <div class="tab" onclick="setCategory('voice')">🎤 Voice Style</div>
+  </div>
+
+  <div class="form-group">
+    <label>Question / User Message</label>
+    <div class="hint" id="questionHint">ተጠቃሚው ቲብብን ምን ይጠይቃል? (በተፈጥሯዊ አማርኛ ጻፍ)</div>
+    <textarea id="question" rows="3" placeholder="ቲ-ቢል ምንድነው? እንዴት ይገዛል?"></textarea>
+  </div>
+
+  <div class="form-group">
+    <label>Tibeb's Response</label>
+    <div class="hint">ቲብብ ምን ብሎ ቢመልስ ጥሩ ነው? (ዝርዝር፣ ትምህርታዊ፣ ሞቅ ያለ)</div>
+    <textarea id="answer" rows="6" placeholder="ቲ-ቢል ማለት የመንግሥት የአጭር ጊዜ የዕዳ ሰነድ ነው..."></textarea>
+  </div>
+
+  <div class="row">
+    <div class="form-group">
+      <label>Address Form</label>
+      <select id="addressForm">
+        <option value="informal_male">አንተ (informal male)</option>
+        <option value="informal_female">አንቺ (informal female)</option>
+        <option value="formal_honorific">እርስዎ (formal/elder)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Category</label>
+      <select id="category">
+        <option value="financial">💰 Financial</option>
+        <option value="general">💬 General</option>
+        <option value="safety">🛡️ Safety</option>
+        <option value="voice">🎤 Voice</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-save" onclick="save()">Save (⌘+Enter)</button>
+    <button class="btn-clear" onclick="clearForm()">Clear</button>
+    <button class="btn-export" onclick="exportData()">Export JSONL ↓</button>
+  </div>
+
+  <div class="history">
+    <h2>Recent Entries</h2>
+    <div id="entries"><div class="empty">No entries yet — start writing!</div></div>
+  </div>
+</div>
+
+<div class="toast" id="toast">Saved!</div>
+
+<script>
+const STORAGE_KEY = 'tibeb_training_data';
+
+function getData() {
+  return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+}
+
+function saveData(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function setCategory(cat) {
+  document.getElementById('category').value = cat;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+
+  const hints = {
+    financial: 'ስለ ኢንቨስትመንት፣ ቲ-ቢል፣ አክሲዮን፣ ባንክ፣ ቁጠባ ጥያቄ ጻፍ',
+    general: 'ስለ ኢትዮጵያ ባህል፣ ታሪክ፣ ዕለታዊ ኑሮ ጥያቄ ጻፍ',
+    safety: 'አደገኛ ወይም ማጭበርበሪያ ሁኔታ ጻፍ — ቲብብ እንዴት ይከላከላል?',
+    voice: 'አጭር ጥያቄ — ለድምጽ/USSD (1-2 ዓረፍተ ነገር ብቻ)',
+  };
+  document.getElementById('questionHint').textContent = hints[cat] || '';
+}
+
+function save() {
+  const q = document.getElementById('question').value.trim();
+  const a = document.getElementById('answer').value.trim();
+  if (!q || !a) { showToast('Fill in both fields!'); return; }
+
+  const entry = {
+    instruction: q,
+    input: '',
+    output: a,
+    source: 'human_nahom',
+    address_form: document.getElementById('addressForm').value,
+    category: document.getElementById('category').value,
+    timestamp: new Date().toISOString(),
+  };
+
+  const data = getData();
+  data.push(entry);
+  saveData(data);
+  updateUI();
+  clearForm();
+  showToast(`Saved! (${data.length} total)`);
+}
+
+function clearForm() {
+  document.getElementById('question').value = '';
+  document.getElementById('answer').value = '';
+  document.getElementById('question').focus();
+}
+
+function deleteEntry(idx) {
+  const data = getData();
+  data.splice(idx, 1);
+  saveData(data);
+  updateUI();
+  showToast('Deleted');
+}
+
+function exportData() {
+  const data = getData();
+  if (!data.length) { showToast('No data to export!'); return; }
+
+  const jsonl = data.map(d => JSON.stringify({
+    instruction: d.instruction,
+    input: d.input || '',
+    output: d.output,
+    source: d.source,
+    address_form: d.address_form,
+    category: d.category,
+  })).join('\n') + '\n';
+
+  const blob = new Blob([jsonl], { type: 'application/jsonl' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'human_training_data.jsonl';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast(`Exported ${data.length} entries!`);
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function updateUI() {
+  const data = getData();
+  document.getElementById('totalCount').textContent = data.length;
+  document.getElementById('financialCount').textContent = data.filter(d => d.category === 'financial').length;
+  document.getElementById('generalCount').textContent = data.filter(d => d.category === 'general').length;
+  document.getElementById('safetyCount').textContent = data.filter(d => d.category === 'safety').length;
+
+  const el = document.getElementById('entries');
+  if (!data.length) {
+    el.innerHTML = '<div class="empty">No entries yet — start writing!</div>';
+    return;
+  }
+
+  el.innerHTML = data.slice().reverse().slice(0, 50).map((d, i) => {
+    const realIdx = data.length - 1 - i;
+    const catIcon = {financial:'💰', general:'💬', safety:'🛡️', voice:'🎤'}[d.category] || '📝';
+    return `<div class="entry">
+      <div class="entry-q">${catIcon} ${d.instruction}</div>
+      <div class="entry-a">${d.output.substring(0, 200)}${d.output.length > 200 ? '...' : ''}</div>
+      <div class="entry-meta">${d.address_form} · ${d.category} · ${new Date(d.timestamp).toLocaleString()}</div>
+      <div class="entry-actions"><button onclick="deleteEntry(${realIdx})">Delete</button></div>
+    </div>`;
+  }).join('');
+}
+
+// Keyboard shortcut: Cmd+Enter to save
+document.addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); save(); }
+});
+
+updateUI();
+document.getElementById('question').focus();
+</script>
+</body>
+</html>

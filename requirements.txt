@@ -1,0 +1,21 @@
+# Tibeb Training - Python Dependencies
+# Install: pip install -r requirements.txt
+
+transformers>=4.40.0
+datasets>=2.18.0
+peft>=0.10.0
+trl>=0.8.0
+huggingface_hub>=0.22.0
+accelerate>=0.28.0
+safetensors>=0.4.0
+psutil>=5.9.0
+
+# Data generation (only needed for scripts/generate_synthetic_data.py)
+anthropic>=0.25.0
+
+# DPO training (only needed for --dpo mode)
+# trl already included above; DPOTrainer requires trl>=0.8.0
+
+# Platform-specific (install manually):
+#   Apple Silicon:  pip install mlx mlx-lm
+#   NVIDIA GPU:     pip install torch bitsandbytes

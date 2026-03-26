@@ -1,0 +1,29 @@
+model: mlx-community/aya-expanse-8b-4bit
+train: true
+data: data/mlx_train
+adapter_path: models/tibeb-sft/mlx-adapter-v4
+fine_tune_type: lora
+iters: 20000
+batch_size: 1
+num_layers: -1
+learning_rate: 1.0e-05
+val_batches: 25
+steps_per_eval: 500
+save_every: 1000
+max_seq_length: 512
+grad_checkpoint: true
+grad_accumulation_steps: 4
+optimizer: adamw
+seed: 42
+lora_parameters:
+  rank: 16
+  dropout: 0.05
+  scale: 32.0
+lr_schedule:
+  name: cosine_decay
+  arguments:
+  - 1.0e-05
+  - 20000
+  - 1.0e-06
+  warmup: 500
+  warmup_init: 1.0e-07

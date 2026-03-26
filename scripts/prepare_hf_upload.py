@@ -1,11 +1,13 @@
 """Upload the unified training dataset to HuggingFace Hub."""
 
+import argparse
 import json
 from pathlib import Path
-from huggingface_hub import HfApi, upload_file
+from huggingface_hub import HfApi
 
-REPO_ID = "nahommohan/tibeb-training-data"
 DATA_FILE = "data/tibeb_unified_train.jsonl"
+DEFAULT_REPO = "nahommohan/tibeb-training-data"
+
 
 def get_stats(filepath):
     sources = {}
@@ -20,6 +22,7 @@ def get_stats(filepath):
             sources[src] = sources.get(src, 0) + 1
             total += 1
     return sources, total
+
 
 def generate_readme(sources, total, size_mb):
     rows = "\n".join(
@@ -82,11 +85,18 @@ Some rows include extra fields like `task_type`, `topic`, or `address_form`.
 
 ```python
 from datasets import load_dataset
-ds = load_dataset("nahommohan/tibeb-training-data", split="train")
+ds = load_dataset("{DEFAULT_REPO}", split="train")
 ```
 """
 
+
 def main():
+    parser = argparse.ArgumentParser(description="Upload Tibeb training data to HuggingFace")
+    parser.add_argument("--repo", default=DEFAULT_REPO,
+                        help=f"HuggingFace repo ID (default: {DEFAULT_REPO})")
+    args = parser.parse_args()
+    repo_id = args.repo
+
     filepath = Path(DATA_FILE)
     if not filepath.exists():
         print(f"Error: {DATA_FILE} not found. Run merge_datasets.py first.")
@@ -103,11 +113,11 @@ def main():
 
     api = HfApi()
 
-    print(f"\nUploading {DATA_FILE} to {REPO_ID}...")
+    print(f"\nUploading {DATA_FILE} to {repo_id}...")
     api.upload_file(
         path_or_fileobj=str(filepath),
         path_in_repo="tibeb_unified_train.jsonl",
-        repo_id=REPO_ID,
+        repo_id=repo_id,
         repo_type="dataset",
     )
     print("  Dataset uploaded.")
@@ -117,12 +127,13 @@ def main():
     api.upload_file(
         path_or_fileobj=readme.encode("utf-8"),
         path_in_repo="README.md",
-        repo_id=REPO_ID,
+        repo_id=repo_id,
         repo_type="dataset",
     )
     print("  README updated.")
 
-    print(f"\nDone! View at: https://huggingface.co/datasets/{REPO_ID}")
+    print(f"\nDone! View at: https://huggingface.co/datasets/{repo_id}")
+
 
 if __name__ == "__main__":
     main()
